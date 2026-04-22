@@ -11,16 +11,23 @@ import randomizer from './util/randomizer.js';
 
 function MainApp() {
     const [results, setResults] = useState(null);
+    const [lastOptions, setLastOptions] = useState(null);
 
     const generateResults = useCallback((options) => {
+        setLastOptions(options);
         setResults(randomizer(options));
     }, []);
+
+    const regenerate = useCallback(() => {
+        if (lastOptions) setResults(randomizer(lastOptions));
+    }, [lastOptions]);
 
     const clearResults = useCallback(() => setResults(null), []);
 
     if (results) {
         return (
             <div>
+                <button onClick={regenerate}>Regenerate</button>
                 <button onClick={clearResults}>Clear Results</button>
                 <br />
                 <ResultsView results={results} />

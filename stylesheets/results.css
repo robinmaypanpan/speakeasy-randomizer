@@ -16,9 +16,9 @@
 
 .players {
     margin: 2px;
-    display: -webkit-flex; /* Safari */
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .playerContainer {
