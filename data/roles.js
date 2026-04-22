@@ -201,4 +201,4 @@ const roles = [
     }
 ];
 
-module.exports = roles;
+export default roles;

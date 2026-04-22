@@ -1,7 +1,7 @@
 /**
  *
  */
-module.exports = {
+export default {
     rat: {
         name: "Rat",
         power: "You are the Rat!, Your true team is the opposite of the one listed on your Role Card.",

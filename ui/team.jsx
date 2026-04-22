@@ -1,32 +1,16 @@
-/**
- * This displays all the cards for a single team.
- */
-const React = require('react');
+import PlayerView from './player.jsx';
 
-const PlayerView = require('./player.jsx');
+export default function TeamView({ team, title }) {
+    const players = team.map((player, index) => (
+        <PlayerView key={player.name + index} player={player} />
+    ));
 
-const TeamView = React.createClass({
-    propTypes: {
-        team: React.PropTypes.array.isRequired,
-        title: React.PropTypes.string.isRequired
-    },
-
-    render() {
-        const {team, title} = this.props;
-
-        const players = team.map((player,index) =>
-            <PlayerView key={player.name + index}
-                player={player} />);
-
-        return (
-            <div className='team'>
-                <div className='teamTitle'>{title}</div>
-                <div className='players'>
-                    {players}
-                </div>
+    return (
+        <div className='team'>
+            <div className='teamTitle'>{title}</div>
+            <div className='players'>
+                {players}
             </div>
-        )
-    }
-});
-
-module.exports = TeamView;
+        </div>
+    );
+}

@@ -79,4 +79,4 @@ const passwords = [
     }
 ];
 
-module.exports = passwords;
+export default passwords;

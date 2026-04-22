@@ -1,52 +1,33 @@
-/**
- * Just the doorway into the app.
- */
-require('polyfills');
+import { useState, useCallback } from 'react';
+import { createRoot } from 'react-dom/client';
 
-require('./stylesheets/results.css');
-require('./stylesheets/input.css');
+import './stylesheets/results.css';
+import './stylesheets/input.css';
 
-const React = require('react');
+import InputView from './ui/input.jsx';
+import ResultsView from './ui/results.jsx';
 
-const InputView = require('./ui/input.jsx');
-const ResultsView = require('./ui/results.jsx');
+import randomizer from './util/randomizer.js';
 
-const randomizer = require('./util/randomizer');
+function MainApp() {
+    const [results, setResults] = useState(null);
 
-const MainApp = React.createClass({
-    getInitialState() {
-        return {};
-    },
+    const generateResults = useCallback((options) => {
+        setResults(randomizer(options));
+    }, []);
 
-    generateResults(randomizationOptions) {
-        const results = randomizer(randomizationOptions);
-        this.setState({results});
-    },
+    const clearResults = useCallback(() => setResults(null), []);
 
-    clearResults() {
-        this.setState({results:null});
-    },
-
-    render() {
-        const {results} = this.state;
-        let markup;
-
-        if (results) {
-            markup = (
-                <div>
-                    <button onClick={this.clearResults}>Clear Results</button>
-                    <br/>
-                    <ResultsView results={results} />
-                </div>
-            );
-        } else {
-            markup = (
-                <InputView generateResults={this.generateResults} />
-            );
-        }
-
-        return markup;
+    if (results) {
+        return (
+            <div>
+                <button onClick={clearResults}>Clear Results</button>
+                <br />
+                <ResultsView results={results} />
+            </div>
+        );
     }
-});
+    return <InputView generateResults={generateResults} />;
+}
 
-React.render(<MainApp/>, document.getElementById('app'));
+createRoot(document.getElementById('app')).render(<MainApp />);

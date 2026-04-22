@@ -1,14 +1,12 @@
-/**
- * This page shows the results of randomization
- */
+import { createContext, useState, useCallback } from 'react';
 
-const React = require('react');
+import TeamView from './team.jsx';
+import StatsBlock from './stats.jsx';
+import ZoomImage from './ZoomImage.jsx';
 
-const TeamView = require('./team.jsx');
-const StatsBlock = require('./stats.jsx');
-const ZoomImage = require('./ZoomImage.jsx');
+export const ZoomImageContext = createContext(() => {});
 
-function calculateStats({mob, fed, femmeFatales}) {
+function calculateStats({ mob, fed, femmeFatales }) {
     let deception = 0;
     let knowledge = 0;
     let action = 0;
@@ -27,72 +25,35 @@ function calculateStats({mob, fed, femmeFatales}) {
     fed.forEach(testRole);
     femmeFatales.forEach(testRole);
 
-    return {deception, knowledge, action};
+    return { deception, knowledge, action };
 }
 
-const ResultsView = React.createClass({
-    childContextTypes: {
-        setZoomImage: React.PropTypes.func.isRequired
-    },
+export default function ResultsView({ results }) {
+    const [showZoomImage, setShowZoomImage] = useState(null);
+    const setZoomImage = useCallback((url) => setShowZoomImage(url), []);
+    const hideZoomImage = useCallback(() => setShowZoomImage(null), []);
 
-    getChildContext() {
-        return {
-            setZoomImage: this.setZoomImage
-        };
-    },
+    const { mob, fed, femmeFatales } = results;
+    const stats = calculateStats(results);
 
-    getInitialState() {
-        return {
-            showZoomImage: null
-        };
-    },
+    const teams = [
+        <TeamView key='mob' team={mob} title='The Mob' />,
+        <TeamView key='fed' team={fed} title='The Feds' />
+    ];
 
-    setZoomImage(url) {
-        this.setState({showZoomImage: url});
-    },
+    if (femmeFatales && femmeFatales.length > 0) {
+        teams.push(<TeamView key='femmeFatales' team={femmeFatales} title='The Femme Fatales' />);
+    }
 
-    hideZoomImage() {
-        this.setState({showZoomImage: null});
-    },
-
-    propTypes: {
-        results: React.PropTypes.shape({
-            mob: React.PropTypes.array.isRequired,
-            fed: React.PropTypes.array.isRequired,
-            femmeFatales: React.PropTypes.array
-        }).isRequired
-    },
-
-    render() {
-        const {showZoomImage, scrollX, scrollY, windowWidth, windowHeight} = this.state;
-        const {mob,fed,femmeFatales} = this.props.results;
-
-        const stats = calculateStats(this.props.results);
-
-        const teams = [
-            <TeamView key='mob' team={mob} title='The Mob' />,
-            <TeamView key='fed' team={fed} title='The Feds' />
-        ];
-
-        if (femmeFatales && femmeFatales.length > 0) {
-            teams.push(<TeamView key='femmeFatales' team={femmeFatales} title='The Femme Fatales' />);
-        }
-
-        let zoomImage;
-        if (showZoomImage) {
-            zoomImage = <ZoomImage
-                onHide={this.hideZoomImage}
-                src={showZoomImage}/>;
-        };
-
-        return (
+    return (
+        <ZoomImageContext.Provider value={setZoomImage}>
             <div className='results'>
-                {zoomImage}
+                {showZoomImage && (
+                    <ZoomImage onHide={hideZoomImage} src={showZoomImage} />
+                )}
                 <StatsBlock stats={stats} />
                 {teams}
             </div>
-        );
-    }
-});
-
-module.exports = ResultsView;
+        </ZoomImageContext.Provider>
+    );
+}
