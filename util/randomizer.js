@@ -60,17 +60,9 @@ function selectRoles({numberOfPlayers, avoidDuplicates}) {
     // set up our roles remaining.
     let rolesRemaining = clamp(numberOfPlayers, 10, 40);
 
-    // Set up our duplicate tracker
-    let maxDuplicates = 99999999;
-    if (avoidDuplicates) {
-        maxDuplicates = Math.max(0, rolesRemaining - roles.length);
-    }
-    let numDuplicates = 0;
-
-    // Now to select all of our roles, 2 at a time.
+    // Femme fatale isn't drawn from the main pool — reserve a pair at the cap
+    // and otherwise save her for the odd-remainder branch below.
     const femmeFatale = "Femme Fatale";
-
-    // At the player-count cap, reserve a femme fatale pair.
     if (rolesRemaining === 40) {
         rolesSelected[femmeFatale] = {
             role: roleTools.getRole(femmeFatale, roles),
@@ -78,6 +70,16 @@ function selectRoles({numberOfPlayers, avoidDuplicates}) {
         };
         rolesRemaining = rolesRemaining - 2;
     }
+
+    // Each role entry covers one pair (mob + fed), so compare pair-slots
+    // needed against the non-femme-fatale pool size.
+    let maxDuplicates = 99999999;
+    if (avoidDuplicates) {
+        const pairsNeeded = Math.floor(rolesRemaining / 2);
+        const mainPoolSize = roles.length - 1;
+        maxDuplicates = Math.max(0, pairsNeeded - mainPoolSize);
+    }
+    let numDuplicates = 0;
 
     while(rolesRemaining > 1) {
         const roleIndex = Math.floor(Math.random() * numRoles);
